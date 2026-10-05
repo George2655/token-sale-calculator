@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Token Sale Calculator</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 760px;
+      margin: 40px auto;
+      padding: 0 20px;
+      background: #f6f7f9;
+      color: #111;
+    }
+
+    .card {
+      background: white;
+      padding: 28px;
+      border-radius: 14px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    .field {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: 700;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .results {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid #ddd;
+    }
+
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      margin: 10px 0;
+    }
+
+    .result-row strong {
+      font-weight: 700;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <h1>Token Sale Calculator</h1>
+    <p>Estimate potential ROI, TGE value and locked value for a token sale.</p>
+
+    <div class="field">
+      <label for="investment">Investment ($)</label>
+      <input id="investment" type="number" value="1000" />
+    </div>
+
+    <div class="field">
+      <label for="saleFdv">Sale FDV ($)</label>
+      <input id="saleFdv" type="number" value="40000000" />
+    </div>
+
+    <div class="field">
+      <label for="expectedFdv">Expected FDV ($)</label>
+      <input id="expectedFdv" type="number" value="100000000" />
+    </div>
+
+    <div class="field">
+      <label for="tgeUnlock">TGE Unlock (%)</label>
+      <input id="tgeUnlock" type="number" value="25" />
+    </div>
+
+    <button onclick="calculate()">Calculate</button>
+
+    <div class="results">
+      <div class="result-row">
+        <span>Expected Multiple</span>
+        <strong id="multiple">-</strong>
+      </div>
+
+      <div class="result-row">
+        <span>Position Value</span>
+        <strong id="positionValue">-</strong>
+      </div>
+
+      <div class="result-row">
+        <span>Profit</span>
+        <strong id="profit">-</strong>
+      </div>
+
+      <div class="result-row">
+        <span>TGE Value</span>
+        <strong id="tgeValue">-</strong>
+      </div>
+
+      <div class="result-row">
+        <span>Locked Value</span>
+        <strong id="lockedValue">-</strong>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function formatUsd(value) {
+      return "$" + value.toLocaleString(undefined, {
+        maximumFractionDigits: 2
+      });
+    }
+
+    function calculate() {
+      const investment = Number(document.getElementById("investment").value);
+      const saleFdv = Number(document.getElementById("saleFdv").value);
+      const expectedFdv = Number(document.getElementById("expectedFdv").value);
+      const tgeUnlock = Number(document.getElementById("tgeUnlock").value);
+
+      if (
+        investment <= 0 ||
+        saleFdv <= 0 ||
+        expectedFdv <= 0 ||
+        tgeUnlock < 0 ||
+        tgeUnlock > 100
+      ) {
+        alert("Please enter valid values.");
+        return;
+      }
+
+      const multiple = expectedFdv / saleFdv;
+      const positionValue = investment * multiple;
+      const profit = positionValue - investment;
+      const tgeValue = positionValue * (tgeUnlock / 100);
+      const lockedValue = positionValue - tgeValue;
+
+      document.getElementById("multiple").textContent =
+        multiple.toFixed(2) + "x";
+
+      document.getElementById("positionValue").textContent =
+        formatUsd(positionValue);
+
+      document.getElementById("profit").textContent =
+        formatUsd(profit);
+
+      document.getElementById("tgeValue").textContent =
+        formatUsd(tgeValue);
+
+      document.getElementById("lockedValue").textContent =
+        formatUsd(lockedValue);
+    }
+
+    calculate();
+  </script>
+</body>
+</html>
