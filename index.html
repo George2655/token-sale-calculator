@@ -19,7 +19,7 @@
       background: white;
       padding: 28px;
       border-radius: 14px;
-      box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
     }
 
     h1 {
@@ -64,11 +64,13 @@
     .result-row {
       display: flex;
       justify-content: space-between;
+      gap: 20px;
       margin: 10px 0;
     }
 
     .result-row strong {
       font-weight: 700;
+      text-align: right;
     }
   </style>
 </head>
@@ -76,31 +78,75 @@
 <body>
   <div class="card">
     <h1>Token Sale Calculator</h1>
-    <p>Estimate potential ROI, TGE value and locked value for a token sale.</p>
+
+    <p>
+      Estimate allocation, ROI, TGE value and locked value for a token sale.
+    </p>
 
     <div class="field">
       <label for="investment">Investment ($)</label>
-      <input id="investment" type="number" value="1000" />
+      <input
+        id="investment"
+        type="number"
+        value="1000"
+        min="0"
+        step="100"
+      />
+    </div>
+
+    <div class="field">
+      <label for="oversubscription">Oversubscription (x)</label>
+      <input
+        id="oversubscription"
+        type="number"
+        value="1"
+        min="1"
+        step="0.1"
+      />
     </div>
 
     <div class="field">
       <label for="saleFdv">Sale FDV ($)</label>
-      <input id="saleFdv" type="number" value="40000000" />
+      <input
+        id="saleFdv"
+        type="number"
+        value="40000000"
+        min="1"
+        step="1000000"
+      />
     </div>
 
     <div class="field">
       <label for="expectedFdv">Expected FDV ($)</label>
-      <input id="expectedFdv" type="number" value="100000000" />
+      <input
+        id="expectedFdv"
+        type="number"
+        value="100000000"
+        min="1"
+        step="1000000"
+      />
     </div>
 
     <div class="field">
       <label for="tgeUnlock">TGE Unlock (%)</label>
-      <input id="tgeUnlock" type="number" value="25" />
+      <input
+        id="tgeUnlock"
+        type="number"
+        value="25"
+        min="0"
+        max="100"
+        step="1"
+      />
     </div>
 
     <button onclick="calculate()">Calculate</button>
 
     <div class="results">
+      <div class="result-row">
+        <span>Estimated Allocation</span>
+        <strong id="allocation">-</strong>
+      </div>
+
       <div class="result-row">
         <span>Expected Multiple</span>
         <strong id="multiple">-</strong>
@@ -136,13 +182,29 @@
     }
 
     function calculate() {
-      const investment = Number(document.getElementById("investment").value);
-      const saleFdv = Number(document.getElementById("saleFdv").value);
-      const expectedFdv = Number(document.getElementById("expectedFdv").value);
-      const tgeUnlock = Number(document.getElementById("tgeUnlock").value);
+      const investment = Number(
+        document.getElementById("investment").value
+      );
+
+      const oversubscription = Number(
+        document.getElementById("oversubscription").value
+      );
+
+      const saleFdv = Number(
+        document.getElementById("saleFdv").value
+      );
+
+      const expectedFdv = Number(
+        document.getElementById("expectedFdv").value
+      );
+
+      const tgeUnlock = Number(
+        document.getElementById("tgeUnlock").value
+      );
 
       if (
         investment <= 0 ||
+        oversubscription < 1 ||
         saleFdv <= 0 ||
         expectedFdv <= 0 ||
         tgeUnlock < 0 ||
@@ -152,11 +214,20 @@
         return;
       }
 
+      const allocation = investment / oversubscription;
+
       const multiple = expectedFdv / saleFdv;
-      const positionValue = investment * multiple;
-      const profit = positionValue - investment;
+
+      const positionValue = allocation * multiple;
+
+      const profit = positionValue - allocation;
+
       const tgeValue = positionValue * (tgeUnlock / 100);
+
       const lockedValue = positionValue - tgeValue;
+
+      document.getElementById("allocation").textContent =
+        formatUsd(allocation);
 
       document.getElementById("multiple").textContent =
         multiple.toFixed(2) + "x";
