@@ -61,6 +61,13 @@
       border-top: 1px solid #ddd;
     }
 
+    .section-title {
+      margin-top: 24px;
+      margin-bottom: 12px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
     .result-row {
       display: flex;
       justify-content: space-between;
@@ -80,7 +87,7 @@
     <h1>Token Sale Calculator</h1>
 
     <p>
-      Estimate allocation, ROI, TGE value and locked value for a token sale.
+      Estimate allocation, ROI, TGE value and target FDVs for a token sale.
     </p>
 
     <div class="field">
@@ -171,6 +178,23 @@
         <span>Locked Value</span>
         <strong id="lockedValue">-</strong>
       </div>
+
+      <div class="section-title">Target FDVs</div>
+
+      <div class="result-row">
+        <span>Break-even FDV</span>
+        <strong id="breakEvenFdv">-</strong>
+      </div>
+
+      <div class="result-row">
+        <span>FDV for 2x</span>
+        <strong id="twoXFdv">-</strong>
+      </div>
+
+      <div class="result-row">
+        <span>FDV for 3x</span>
+        <strong id="threeXFdv">-</strong>
+      </div>
     </div>
   </div>
 
@@ -226,6 +250,10 @@
 
       const lockedValue = positionValue - tgeValue;
 
+      const breakEvenFdv = saleFdv;
+      const twoXFdv = saleFdv * 2;
+      const threeXFdv = saleFdv * 3;
+
       document.getElementById("allocation").textContent =
         formatUsd(allocation);
 
@@ -243,6 +271,15 @@
 
       document.getElementById("lockedValue").textContent =
         formatUsd(lockedValue);
+
+      document.getElementById("breakEvenFdv").textContent =
+        formatUsd(breakEvenFdv);
+
+      document.getElementById("twoXFdv").textContent =
+        formatUsd(twoXFdv);
+
+      document.getElementById("threeXFdv").textContent =
+        formatUsd(threeXFdv);
     }
 
     calculate();
