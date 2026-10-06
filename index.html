@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>Token Sale Calculator</title>
 
   <style>
@@ -24,6 +25,11 @@
 
     h1 {
       margin-top: 0;
+    }
+
+    .subtitle {
+      color: #555;
+      margin-bottom: 25px;
     }
 
     .field {
@@ -62,8 +68,10 @@
     }
 
     .section-title {
-      margin-top: 24px;
+      margin-top: 26px;
       margin-bottom: 12px;
+      padding-bottom: 7px;
+      border-bottom: 1px solid #eee;
       font-size: 18px;
       font-weight: 700;
     }
@@ -75,19 +83,32 @@
       margin: 10px 0;
     }
 
+    .result-row span {
+      color: #333;
+    }
+
     .result-row strong {
       font-weight: 700;
       text-align: right;
+    }
+
+    .footer {
+      margin-top: 25px;
+      font-size: 12px;
+      color: #777;
+      text-align: center;
     }
   </style>
 </head>
 
 <body>
+
   <div class="card">
+
     <h1>Token Sale Calculator</h1>
 
-    <p>
-      Estimate allocation, ROI, TGE value and target FDVs for a token sale.
+    <p class="subtitle">
+      Estimate allocation, token price, ROI, TGE unlocks and target FDVs.
     </p>
 
     <div class="field">
@@ -119,7 +140,6 @@
         type="number"
         value="40000000"
         min="1"
-        step="1000000"
       />
     </div>
 
@@ -130,7 +150,16 @@
         type="number"
         value="100000000"
         min="1"
-        step="1000000"
+      />
+    </div>
+
+    <div class="field">
+      <label for="totalSupply">Total Token Supply</label>
+      <input
+        id="totalSupply"
+        type="number"
+        value="1000000000"
+        min="1"
       />
     </div>
 
@@ -149,9 +178,49 @@
     <button onclick="calculate()">Calculate</button>
 
     <div class="results">
+
+      <div class="section-title">
+        Allocation
+      </div>
+
       <div class="result-row">
         <span>Estimated Allocation</span>
         <strong id="allocation">-</strong>
+      </div>
+
+      <div class="result-row">
+        <span>Tokens Received</span>
+        <strong id="tokensReceived">-</strong>
+      </div>
+
+      <div class="result-row">
+        <span>Tokens Unlocked at TGE</span>
+        <strong id="tokensUnlocked">-</strong>
+      </div>
+
+      <div class="result-row">
+        <span>Tokens Locked</span>
+        <strong id="tokensLocked">-</strong>
+      </div>
+
+
+      <div class="section-title">
+        Token Price
+      </div>
+
+      <div class="result-row">
+        <span>Sale Token Price</span>
+        <strong id="saleTokenPrice">-</strong>
+      </div>
+
+      <div class="result-row">
+        <span>Expected Token Price</span>
+        <strong id="expectedTokenPrice">-</strong>
+      </div>
+
+
+      <div class="section-title">
+        Returns
       </div>
 
       <div class="result-row">
@@ -179,7 +248,10 @@
         <strong id="lockedValue">-</strong>
       </div>
 
-      <div class="section-title">Target FDVs</div>
+
+      <div class="section-title">
+        Target FDVs
+      </div>
 
       <div class="result-row">
         <span>Break-even FDV</span>
@@ -195,94 +267,196 @@
         <span>FDV for 3x</span>
         <strong id="threeXFdv">-</strong>
       </div>
+
     </div>
+
+    <div class="footer">
+      Educational tool. Not financial advice.
+    </div>
+
   </div>
 
+
   <script>
+
     function formatUsd(value) {
       return "$" + value.toLocaleString(undefined, {
         maximumFractionDigits: 2
       });
     }
 
+
+    function formatTokenPrice(value) {
+
+      if (value < 0.01) {
+        return "$" + value.toFixed(6);
+      }
+
+      return "$" + value.toFixed(4);
+    }
+
+
+    function formatTokens(value) {
+
+      return value.toLocaleString(undefined, {
+        maximumFractionDigits: 2
+      });
+    }
+
+
     function calculate() {
-      const investment = Number(
-        document.getElementById("investment").value
-      );
 
-      const oversubscription = Number(
-        document.getElementById("oversubscription").value
-      );
+      const investment =
+        Number(document.getElementById("investment").value);
 
-      const saleFdv = Number(
-        document.getElementById("saleFdv").value
-      );
+      const oversubscription =
+        Number(document.getElementById("oversubscription").value);
 
-      const expectedFdv = Number(
-        document.getElementById("expectedFdv").value
-      );
+      const saleFdv =
+        Number(document.getElementById("saleFdv").value);
 
-      const tgeUnlock = Number(
-        document.getElementById("tgeUnlock").value
-      );
+      const expectedFdv =
+        Number(document.getElementById("expectedFdv").value);
+
+      const totalSupply =
+        Number(document.getElementById("totalSupply").value);
+
+      const tgeUnlock =
+        Number(document.getElementById("tgeUnlock").value);
+
 
       if (
         investment <= 0 ||
         oversubscription < 1 ||
         saleFdv <= 0 ||
         expectedFdv <= 0 ||
+        totalSupply <= 0 ||
         tgeUnlock < 0 ||
         tgeUnlock > 100
       ) {
+
         alert("Please enter valid values.");
+
         return;
       }
 
-      const allocation = investment / oversubscription;
 
-      const multiple = expectedFdv / saleFdv;
+      const allocation =
+        investment / oversubscription;
 
-      const positionValue = allocation * multiple;
 
-      const profit = positionValue - allocation;
+      const saleTokenPrice =
+        saleFdv / totalSupply;
 
-      const tgeValue = positionValue * (tgeUnlock / 100);
 
-      const lockedValue = positionValue - tgeValue;
+      const expectedTokenPrice =
+        expectedFdv / totalSupply;
 
-      const breakEvenFdv = saleFdv;
-      const twoXFdv = saleFdv * 2;
-      const threeXFdv = saleFdv * 3;
+
+      const tokensReceived =
+        allocation / saleTokenPrice;
+
+
+      const tokensUnlocked =
+        tokensReceived * (tgeUnlock / 100);
+
+
+      const tokensLocked =
+        tokensReceived - tokensUnlocked;
+
+
+      const multiple =
+        expectedFdv / saleFdv;
+
+
+      const positionValue =
+        tokensReceived * expectedTokenPrice;
+
+
+      const profit =
+        positionValue - allocation;
+
+
+      const tgeValue =
+        tokensUnlocked * expectedTokenPrice;
+
+
+      const lockedValue =
+        tokensLocked * expectedTokenPrice;
+
+
+      const breakEvenFdv =
+        saleFdv;
+
+
+      const twoXFdv =
+        saleFdv * 2;
+
+
+      const threeXFdv =
+        saleFdv * 3;
+
 
       document.getElementById("allocation").textContent =
         formatUsd(allocation);
 
+
+      document.getElementById("tokensReceived").textContent =
+        formatTokens(tokensReceived);
+
+
+      document.getElementById("tokensUnlocked").textContent =
+        formatTokens(tokensUnlocked);
+
+
+      document.getElementById("tokensLocked").textContent =
+        formatTokens(tokensLocked);
+
+
+      document.getElementById("saleTokenPrice").textContent =
+        formatTokenPrice(saleTokenPrice);
+
+
+      document.getElementById("expectedTokenPrice").textContent =
+        formatTokenPrice(expectedTokenPrice);
+
+
       document.getElementById("multiple").textContent =
         multiple.toFixed(2) + "x";
+
 
       document.getElementById("positionValue").textContent =
         formatUsd(positionValue);
 
+
       document.getElementById("profit").textContent =
         formatUsd(profit);
+
 
       document.getElementById("tgeValue").textContent =
         formatUsd(tgeValue);
 
+
       document.getElementById("lockedValue").textContent =
         formatUsd(lockedValue);
+
 
       document.getElementById("breakEvenFdv").textContent =
         formatUsd(breakEvenFdv);
 
+
       document.getElementById("twoXFdv").textContent =
         formatUsd(twoXFdv);
+
 
       document.getElementById("threeXFdv").textContent =
         formatUsd(threeXFdv);
     }
 
+
     calculate();
+
   </script>
+
 </body>
 </html>
