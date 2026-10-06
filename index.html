@@ -241,18 +241,35 @@
       </div>
 
       <div class="result-row">
+        <span>Expected ROI</span>
+        <strong id="expectedRoi">-</strong>
+      </div>
+
+      <div class="result-row">
         <span>Position Value</span>
         <strong id="positionValue">-</strong>
       </div>
 
       <div class="result-row">
-        <span>Profit</span>
+        <span>Full Position Profit</span>
         <strong id="profit">-</strong>
       </div>
+
+      <div class="section-title">TGE</div>
 
       <div class="result-row">
         <span>TGE Value</span>
         <strong id="tgeValue">-</strong>
+      </div>
+
+      <div class="result-row">
+        <span>TGE Profit</span>
+        <strong id="tgeProfit">-</strong>
+      </div>
+
+      <div class="result-row">
+        <span>TGE ROI</span>
+        <strong id="tgeRoi">-</strong>
       </div>
 
       <div class="result-row">
@@ -306,6 +323,11 @@
       });
     }
 
+    function formatPercent(value) {
+      const sign = value > 0 ? "+" : "";
+      return sign + value.toFixed(2) + "%";
+    }
+
     function calculate() {
       const investment = Number(
         document.getElementById("investment").value
@@ -345,17 +367,36 @@
       }
 
       const allocation = investment / oversubscription;
+
       const saleTokenPrice = saleFdv / totalSupply;
       const expectedTokenPrice = expectedFdv / totalSupply;
+
       const tokensReceived = allocation / saleTokenPrice;
       const tokensUnlocked = tokensReceived * (tgeUnlock / 100);
       const tokensLocked = tokensReceived - tokensUnlocked;
 
       const multiple = expectedFdv / saleFdv;
-      const positionValue = tokensReceived * expectedTokenPrice;
-      const profit = positionValue - allocation;
-      const tgeValue = tokensUnlocked * expectedTokenPrice;
-      const lockedValue = tokensLocked * expectedTokenPrice;
+
+      const positionValue =
+        tokensReceived * expectedTokenPrice;
+
+      const profit =
+        positionValue - allocation;
+
+      const expectedRoi =
+        (profit / allocation) * 100;
+
+      const tgeValue =
+        tokensUnlocked * expectedTokenPrice;
+
+      const tgeProfit =
+        tgeValue - allocation;
+
+      const tgeRoi =
+        (tgeProfit / allocation) * 100;
+
+      const lockedValue =
+        tokensLocked * expectedTokenPrice;
 
       const breakEvenFdv = saleFdv;
       const twoXFdv = saleFdv * 2;
@@ -382,6 +423,9 @@
       document.getElementById("multiple").textContent =
         multiple.toFixed(2) + "x";
 
+      document.getElementById("expectedRoi").textContent =
+        formatPercent(expectedRoi);
+
       document.getElementById("positionValue").textContent =
         formatUsd(positionValue);
 
@@ -390,6 +434,12 @@
 
       document.getElementById("tgeValue").textContent =
         formatUsd(tgeValue);
+
+      document.getElementById("tgeProfit").textContent =
+        formatUsd(tgeProfit);
+
+      document.getElementById("tgeRoi").textContent =
+        formatPercent(tgeRoi);
 
       document.getElementById("lockedValue").textContent =
         formatUsd(lockedValue);
@@ -419,7 +469,8 @@
     }
 
     function toggleTheme() {
-      const isDark = document.body.classList.contains("dark");
+      const isDark =
+        document.body.classList.contains("dark");
 
       setTheme(isDark ? "light" : "dark");
     }
